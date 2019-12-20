@@ -1,0 +1,2 @@
+docker build -t local/ipsec-vpn-server .
+docker run --rm --name ipsec.static --env-file /path-to/vpn.env  --privileged local/ipsec-vpn-server &

@@ -265,7 +265,7 @@ get_lm(){
                declare SUMTX_${line}=0
                #new day after 48 times per link
                [[ ${!DAYCOUNT} -eq 48 ]] && { 
-                  declare TIMECOUNT_${line}=1; 
+                  unset TIMECOUNT_${line}; 
                   NEWDAY=$(echo ${NEWDAY} |sed -e "s/${line}//g");
                   echo "            \"Link\":${line} {" >> ${FILENAME};
                   echo ${!AVGDATA} |sed -e 's/,$//' |sed -e 's/,/,\n/g' >> ${FILENAME};
