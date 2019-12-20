@@ -105,9 +105,6 @@ check_options() {
    [[ ! -z ${REPORT} ]] && {
       if [ ${REPORT} = "LIZENZ_USAGE" ]; then
          TODAY=$(date '+%F') # or whatever YYYY-MM-DD you need
-         #THIS_MONTH_START=$(date -d "${TODAY}" '+%Y-%m-01')
-         #START_TIME=$(date -d "$THIS_MONTH_START -1 month" '+%F')
-         #END_TIME=$(date -d "$START_TIME +1 month -1 sec" '+%F')
          START_EPOCH=$(date --date="$(date +'%Y-%m-01') - 1 month" +%s)
          END_EPOCH=$(date --date="$(date +'%Y-%m-01') - 1 second" +%s)
       # edit for more option filter
@@ -227,8 +224,6 @@ get_lm(){
    [[ -z ${NEXT_EPOCH} ]] && { NEXT_EPOCH=$((${START_EPOCH}+300));}
    SUMRX=0
    SUMTX=0
-   #AVGTHP_RX=$(echo "${START_TIME} |")
-   #AVGTHP_TX=$(echo "${START_TIME} |")
    while true; do
       if [[ ${START_EPOCH} -le ${END_EPOCH} ]]; then
          JSONRESULT=$(bash -c "vcoclient.py --vco=${ORCHESTRATOR} --output=json edges_get_lm --enterpriseid=${ENTERPRISEID} --edgeid=${EDGEID} --starttime=\"$(date -d @$START_EPOCH '+%Y-%m-%d %H:%M')\" --endtime=\"$(date -d @$NEXT_EPOCH '+%Y-%m-%d %H:%M')\"")
@@ -278,7 +273,7 @@ get_lm(){
                   echo "            }" >> ${FILENAME};
                   unset AVGTHP_${line};
                }
-               [[ ${!DAYCOUNT} -ge 1 && ${!DAYCOUNT} -lt 48 ]] && { declare TIMECOUNT_${line}=$((${!DAYCOUNT}+1)); }
+               [[ ${!DAYCOUNT} -gt 1 && ${!DAYCOUNT} -lt 48 ]] && { declare TIMECOUNT_${line}=$((${!DAYCOUNT}+1)); }
                [[ -z ${NEWDAY} ]] && { echo "         }" >> ${FILENAME}; }
                #
                unset AGGCOUNT_${line}
@@ -286,9 +281,6 @@ get_lm(){
          done
          START_EPOCH=$((${START_EPOCH}+300))
          NEXT_EPOCH=$((${NEXT_EPOCH}+300))      
-      #echo "${ENTERPRISEID}_${EDGEID}_${line}_RX"
-      #echo "${ENTERPRISEID}_${EDGEID}_${line}_TX"
-      #RESULT_DATA+=$(bash -c "vcoclient.py --vco=${ORCHESTRATOR} --output=json edges_get_lm --enterpriseid=${ENTERPRISEID} --edgeid=${EDGEID} --starttime="2019-10-01" --endtime="2019-10-31" --filter="bps" ")
       else
          break
       fi
