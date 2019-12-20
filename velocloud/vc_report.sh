@@ -234,7 +234,7 @@ get_lm(){
             declare AGGLINECOUNT=AGGCOUNT_${line}
             [[ -z ${!AGGLINECOUNT} ]] && { declare AGGCOUNT_${line}=0; }
             #
-            if [[ ${!AGGLINECOUNT} -le 5 ]]; then
+            if [[ ${!AGGLINECOUNT} -le 4 ]]; then
                # BYTE*X = Value in Bytes of 5 minutes -- MBIT*X = VALUE in MBit/s
                BYTE_RX=$(echo ${JSONRESULT} |jq --arg line $line -r '.'\"$line\"'.bytesRx')
                MBIT_RX=$(echo "scale=2; (${BYTE_RX} / 300) / 125000" |bc -l | sed -e 's/^-\./-0./' -e 's/^\./0./' |sed -z 's/\(.*\)\n$/\1/')
@@ -259,7 +259,6 @@ get_lm(){
                declare AVGDATA=AVGTHP_${line}
                [[ -z ${!AVGDATA} ]] && { declare AVGTHP_${line}; }
                declare DAYCOUNT=TIMECOUNT_${line}
-               [[ -z ${!DAYCOUNT} ]] && { declare TIMECOUNT_${line}=1; }
                declare AVGTHP_${line}+=$(echo -n "               \"RX${!DAYCOUNT}\":"; echo "scale=2; ${!LINKSUMRX} / 6" |bc -l | sed -e 's/^-\./-0./' -e 's/^\./0./' |sed -z 's/\(.*\)\n$/\1/' |sed -e 's/$/,\n/';)
                declare SUMRX_${line}=0
                declare AVGTHP_${line}+=$(echo -n "               \"TX${!DAYCOUNT}\":"; echo "scale=2; ${!LINKSUMTX} / 6" |bc -l | sed -e 's/^-\./-0./' -e 's/^\./0./' |sed -z 's/\(.*\)\n$/\1/' |sed -e 's/$/,\n/';)
@@ -273,7 +272,8 @@ get_lm(){
                   echo "            }" >> ${FILENAME};
                   unset AVGTHP_${line};
                }
-               [[ ${!DAYCOUNT} -gt 1 && ${!DAYCOUNT} -lt 48 ]] && { declare TIMECOUNT_${line}=$((${!DAYCOUNT}+1)); }
+               [[ ${!DAYCOUNT} -ge 1 && ${!DAYCOUNT} -lt 48 ]] && { declare TIMECOUNT_${line}=$((${!DAYCOUNT}+1)); }
+               [[ -z ${!DAYCOUNT} ]] && { declare TIMECOUNT_${line}=1; }
                [[ -z ${NEWDAY} ]] && { echo "         }" >> ${FILENAME}; }
                #
                unset AGGCOUNT_${line}
