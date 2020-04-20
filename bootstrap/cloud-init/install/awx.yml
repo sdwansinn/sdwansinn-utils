@@ -1,0 +1,42 @@
+#cloud-config
+hostname: awx.sdwan.lab
+password: sdwanawxadmin
+chpasswd: {expire: False}
+ssh_pwauth: true
+ssh_authorized_keys:
+  - <your id_rsa.pub key>
+package_upgrade: true
+packages:
+- dhcp
+
+bootcmd:
+  - ifdown eth0
+  - ifup eth0
+runcmd:
+  - 'dnf install epel-release -y'
+  - 'dnf install git gcc gcc-c++ ansible nodejs gettext device-mapper-persistent-data lvm2 bzip2 python3-pip -y'
+  - 'dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo'
+  - 'dnf install docker-ce-3:18.09.1-3.el7 -y'
+  - 'systemctl start docker'
+  - 'systemctl enable docker'
+  - 'pip3 install docker-compose'
+  - 'alternatives --set python /usr/bin/python3'
+  - 'git clone https://github.com/ansible/awx.git'
+  - 'openssl rand -base64 30'
+  - 'cd awx/installer/'
+  - 'mkdir /var/lib/pgdocker'
+  - 'ansible-playbook -i inventory install.yml'
+  - 'setenforce 0'
+  - 'firewall-cmd --zone=public --add-masquerade --permanent'
+  - 'firewall-cmd --permanent --add-service=http'
+  - 'firewall-cmd --permanent --add-service=https'
+  - 'firewall-cmd --reload'
+
+
+final_message: "==== Cloud-init completed ===="
+power_state:
+ delay: "+1"
+ mode: reboot
+ message: install done. rebooting now
+ timeout: 15
+ condition: True
