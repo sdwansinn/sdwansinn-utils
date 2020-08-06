@@ -71,7 +71,7 @@ ISEXCEPTIONAL=$(echo ${RESULT} |jq '.[] .endpoints[].isExceptional')
 MINAFTER=$(date -d "5 days" +%s)
 
 if [[ ${HASWARNINGS} == 'false' ]]; then
-  [[ ${NOTAFTER} -le ${MINAFTER} ]] && { echo "Validation Date of certificates is too low"; echo ${RESULT} > /var/log/cert.log}
+  [[ ${NOTAFTER} -le ${MINAFTER} ]] && { echo "Validation Date of certificates is too low"; echo ${RESULT} > /var/log/cert.log; }
   if [[ ${ISEXCEPTIONAL} == 'true' ]]; then
     echo "Validation of ${SUBJECT} looks fine"
   else
